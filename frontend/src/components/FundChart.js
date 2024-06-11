@@ -1,22 +1,40 @@
+import React, { useEffect, useRef } from 'react';
+import { Chart, registerables } from 'chart.js';
 
-import React from 'react';
-import { Line } from 'react-chartjs-2';
+Chart.register(...registerables);
 
 const FundChart = ({ data }) => {
-    const chartData = {
-        labels: data.dates,
-        datasets: [
-            {
-                label: 'Fund Value',
-                data: data.values,
-                fill: false,
-                backgroundColor: 'rgb(75, 192, 192)',
-                borderColor: 'rgba(75, 192, 192, 0.2)',
-            },
-        ],
-    };
+    const chartRef = useRef(null);
 
-    return <Line data={chartData} />;
+    useEffect(() => {
+        const ctx = chartRef.current.getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line', 
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                datasets: [{
+                    label: data.name,
+                    data: [data.price, data.change, data.change_percent], 
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'category',
+                        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'], 
+                    }
+                }
+            }
+        });
+
+        return () => {
+            chart.destroy();
+        };
+    }, [data]);
+
+    return <canvas ref={chartRef}></canvas>;
 };
 
 export default FundChart;
